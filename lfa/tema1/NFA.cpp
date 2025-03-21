@@ -51,13 +51,13 @@ bool NFA::readFromFile(const std::string& filename) {
                     std::string symbol = line;
                     symbol.erase(remove_if(symbol.begin(), symbol.end(), ::isspace), symbol.end());
                     if (!symbol.empty()) {
-                        sigma.insert(symbol[0]); // Take only the first character
+                        sigma.insert(symbol[0]); // Takes only the first character
                     }
                 }
                 break;
                 
             case STATES:
-                // Format: "q0, S" or "q1" or "q4, F" (S=start, F=final)
+                // Format: "q0, S" / "q1" / "q2, F" (S=start, F=final)
                 {
                     std::istringstream ss(line);
                     std::string stateName;
@@ -73,7 +73,6 @@ bool NFA::readFromFile(const std::string& filename) {
                             // Check for state markers (S=start, F=final)
                             std::string restOfLine;
                             if (std::getline(ss, restOfLine)) {
-                                // Remove whitespace
                                 restOfLine.erase(remove_if(restOfLine.begin(), restOfLine.end(), ::isspace), restOfLine.end());
                                 
                                 if (restOfLine == "S") {
@@ -168,9 +167,8 @@ bool NFA::readFromFile(const std::string& filename) {
     return isValid;
 }
 
-bool NFA::validate() {
-    return validateStates() && validateSigma() && validateTransitions() && 
-           validateInitialState() && validateFinalStates();
+bool NFA::validate() const {
+    return validateStates() && validateSigma() && validateTransitions() && validateInitialState() && validateFinalStates();
 }
 
 bool NFA::validateStates() const {
@@ -204,7 +202,7 @@ bool NFA::validateTransitions() const {
         // Check if all target states are valid
         for (int toState : toStates) {
             if (states.find(toState) == states.end()) {
-                std::cerr << "Invalid transition: target state " << toState << " not in the set of states" << std::endl;
+                std::cerr << "Invalid transition: state " << toState << " not in the set of states" << std::endl;
                 return false;
             }
         }
@@ -232,7 +230,7 @@ bool NFA::validateFinalStates() const {
 
 bool NFA::accepts(const std::string& input) {
     if (!isValid) {
-        std::cerr << "Cannot check acceptance: automaton is not valid" << std::endl;
+        std::cerr << "Cannot accept: automaton is not valid" << std::endl;
         return false;
     }
     

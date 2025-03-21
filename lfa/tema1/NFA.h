@@ -23,10 +23,11 @@ protected:
 
 public:
     NFA();
+    virtual ~NFA() = default;
     
     bool readFromFile(const std::string& filename);
     
-    virtual bool validate();
+    virtual bool validate() const;
     
     bool accepts(const std::string& input);
     

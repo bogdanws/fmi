@@ -6,7 +6,7 @@
 class DFA : public NFA {
 public:
     // Override validate to add the DFA-specific constraint (at most one transition for each state-symbol pair)
-    bool validate() override;
+    bool validate() const override;
 };
 
 #endif // DFA_H 

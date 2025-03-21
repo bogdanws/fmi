@@ -1,0 +1,20 @@
+# This is an example DFA configuration file
+# A DFA for the language of strings ending with 'a'
+
+Sigma:
+a
+b
+End
+
+# States definition - format: state_name, [S for start, F for final]
+States:
+q0, S
+q1, F
+End
+
+# Transitions definition - format: source_state, symbol, target_state
+Transitions:
+q0, a, q0
+q0, a, q1
+q0, b, q0
+End 
