@@ -1,5 +1,6 @@
 CXX = g++
 CXXFLAGS = -std=c++23 -Wall -Wextra -pedantic
+LDFLAGS = -static-libstdc++ -static-libgcc
 
 SRCS = main.cpp NFA.cpp DFA.cpp utils.cpp
 BUILD_DIR = build
@@ -11,7 +12,7 @@ EXEC = $(BUILD_DIR)/automaton
 all: $(EXEC)
 
 $(EXEC): $(OBJS)
-	$(CXX) $(CXXFLAGS) -o $@ $^
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $^
 
 $(BUILD_DIR)/%.o: %.cpp | $(BUILD_DIR)
 	$(CXX) $(CXXFLAGS) -c $< -o $@

@@ -22,15 +22,17 @@ bool NFA::readFromFile(const std::string& filename) {
     Section currentSection = NONE;
     std::string line;
     
+    initialState = -1;
+    
     while (std::getline(file, line)) {
-        // Skip comments
+        // skip comments
         if (line.empty() || line[0] == '#') {
             continue;
         }
         
         std::string trimmedLine = transformLine(line);
         
-        // Check for section headers
+        // Section headers
         if (trimmedLine == "sigma:") {
             currentSection = SIGMA;
             continue;
@@ -48,43 +50,50 @@ bool NFA::readFromFile(const std::string& filename) {
         switch (currentSection) {
             case SIGMA:
                 {
-                    std::string symbol = line;
-                    symbol.erase(remove_if(symbol.begin(), symbol.end(), ::isspace), symbol.end());
+                    std::string symbol = removeWhitespace(line);
                     if (!symbol.empty()) {
-                        sigma.insert(symbol[0]); // Takes only the first character
+                        sigma.insert(symbol[0]); // only take the first character
                     }
                 }
                 break;
                 
             case STATES:
-                // Format: "q0, S" / "q1" / "q2, F" (S=start, F=final)
+                // format: "q0, S" / "q1" / "q2, F" (S=start, F=final)
                 {
                     std::istringstream ss(line);
                     std::string stateName;
                     std::getline(ss, stateName, ',');
                     
-                    stateName.erase(remove_if(stateName.begin(), stateName.end(), ::isspace), stateName.end());
+                    stateName = removeWhitespace(stateName);
                     
-                    if (stateName.size() > 1 && stateName[0] == 'q') {
-                        try {
-                            int stateNum = std::stoi(stateName.substr(1));
+                    if (isValidStateName(stateName)) {
+                        int stateNum = parseStateName(stateName);
+                        if (stateNum != -1) {
                             states.insert(stateNum);
                             
-                            // Check for state markers (S=start, F=final)
+                            // check for state markers (S=start, F=final)
                             std::string restOfLine;
                             if (std::getline(ss, restOfLine)) {
-                                restOfLine.erase(remove_if(restOfLine.begin(), restOfLine.end(), ::isspace), restOfLine.end());
+                                restOfLine = removeWhitespace(restOfLine);
                                 
                                 if (restOfLine == "S") {
+                                    if (initialState != -1 && initialState != stateNum) {
+                                        std::cerr << "Error: Multiple start states defined. States " << initialState << " and " << stateNum << " are both marked as start states." << std::endl;
+                                        return false;
+                                    }
                                     initialState = stateNum;
                                 } else if (restOfLine == "F") {
                                     finalStates.insert(stateNum);
                                 } else if (restOfLine == "S,F" || restOfLine == "F,S") {
+                                    if (initialState != -1 && initialState != stateNum) {
+                                        std::cerr << "Error: Multiple start states defined. States " << initialState << " and " << stateNum << " are both marked as start states." << std::endl;
+                                        return false;
+                                    }
                                     initialState = stateNum;
                                     finalStates.insert(stateNum);
                                 }
                             }
-                        } catch (const std::exception& e) {
+                        } else {
                             std::cerr << "Error parsing state: " << stateName << std::endl;
                             return false;
                         }
@@ -96,60 +105,52 @@ bool NFA::readFromFile(const std::string& filename) {
                 break;
                 
             case TRANSITIONS:
-                // Format: "q0, a, q1"
+                // format: "q0, a, q1"
                 {
                     std::istringstream ss(line);
                     std::string fromStateStr, symbolStr, toStateStr;
                     
-                    // Parse fromState
+                    // parse fromState
                     if (!std::getline(ss, fromStateStr, ',')) {
                         std::cerr << "Error parsing transition source state from: " << line << std::endl;
                         return false;
                     }
-                    fromStateStr.erase(remove_if(fromStateStr.begin(), fromStateStr.end(), ::isspace), fromStateStr.end());
+                    fromStateStr = removeWhitespace(fromStateStr);
                     
-                    // Parse symbol
+                    // parse symbol
                     if (!std::getline(ss, symbolStr, ',')) {
                         std::cerr << "Error parsing transition symbol from: " << line << std::endl;
                         return false;
                     }
-                    symbolStr.erase(remove_if(symbolStr.begin(), symbolStr.end(), ::isspace), symbolStr.end());
+                    symbolStr = removeWhitespace(symbolStr);
                     
-                    // Parse toState
+                    // parse toState
                     if (!std::getline(ss, toStateStr)) {
                         std::cerr << "Error parsing transition target state from: " << line << std::endl;
                         return false;
                     }
-                    toStateStr.erase(remove_if(toStateStr.begin(), toStateStr.end(), ::isspace), toStateStr.end());
+                    toStateStr = removeWhitespace(toStateStr);
                     
-                    // Convert state names to integers
-                    try {
-                        int fromState = -1, toState = -1;
-                        
-                        if (fromStateStr.size() > 1 && fromStateStr[0] == 'q') {
-                            fromState = std::stoi(fromStateStr.substr(1));
-                        } else {
-                            std::cerr << "Invalid source state format: " << fromStateStr << std::endl;
-                            return false;
-                        }
-                        
-                        if (toStateStr.size() > 1 && toStateStr[0] == 'q') {
-                            toState = std::stoi(toStateStr.substr(1));
-                        } else {
-                            std::cerr << "Invalid target state format: " << toStateStr << std::endl;
-                            return false;
-                        }
-                        
-                        // Add the transition if symbol is valid
-                        if (!symbolStr.empty()) {
-                            char symbol = symbolStr[0];
-                            transitions[{fromState, symbol}].insert(toState);
-                        } else {
-                            std::cerr << "Empty transition symbol" << std::endl;
-                            return false;
-                        }
-                    } catch (const std::exception& e) {
-                        std::cerr << "Error parsing transition: " << line << std::endl;
+                    // convert state names to integers
+                    int fromState = parseStateName(fromStateStr);
+                    int toState = parseStateName(toStateStr);
+                    
+                    if (fromState == -1) {
+                        std::cerr << "Invalid source state format: " << fromStateStr << std::endl;
+                        return false;
+                    }
+                    
+                    if (toState == -1) {
+                        std::cerr << "Invalid target state format: " << toStateStr << std::endl;
+                        return false;
+                    }
+                    
+                    // add the transition if symbol is valid
+                    if (!symbolStr.empty()) {
+                        char symbol = symbolStr[0];
+                        transitions[{fromState, symbol}].insert(toState);
+                    } else {
+                        std::cerr << "Empty transition symbol" << std::endl;
                         return false;
                     }
                 }
@@ -162,7 +163,7 @@ bool NFA::readFromFile(const std::string& filename) {
     
     file.close();
     
-    // Validate the NFA
+    // validate the NFA
     isValid = validate();
     return isValid;
 }
@@ -172,34 +173,32 @@ bool NFA::validate() const {
 }
 
 bool NFA::validateStates() const {
-    // States set should not be empty
     return !states.empty();
 }
 
 bool NFA::validateSigma() const {
-    // Alphabet should not be empty
     return !sigma.empty();
 }
 
 bool NFA::validateTransitions() const {
-    // Check if all transitions use valid states and symbols
+    // check if all transitions use valid states and symbols
     for (const auto& [transition, toStates] : transitions) {
         int fromState = transition.first;
         char symbol = transition.second;
         
-        // Check if fromState is valid
+        // check if fromState is valid
         if (states.find(fromState) == states.end()) {
             std::cerr << "Invalid transition: state " << fromState << " not in the set of states" << std::endl;
             return false;
         }
         
-        // Check if symbol is valid
+        // check if symbol is valid
         if (sigma.find(symbol) == sigma.end()) {
             std::cerr << "Invalid transition: symbol " << symbol << " not in the alphabet" << std::endl;
             return false;
         }
         
-        // Check if all target states are valid
+        // check if all target states are valid
         for (int toState : toStates) {
             if (states.find(toState) == states.end()) {
                 std::cerr << "Invalid transition: state " << toState << " not in the set of states" << std::endl;
@@ -212,12 +211,23 @@ bool NFA::validateTransitions() const {
 }
 
 bool NFA::validateInitialState() const {
-    // Check if initialState is in the set of states
-    return states.find(initialState) != states.end();
+    // check if initialState is valid
+    if (initialState == -1) {
+        std::cerr << "Invalid initial state: no start state specified" << std::endl;
+        return false;
+    }
+    
+    // check if initialState is in the set of states
+    if (states.find(initialState) == states.end()) {
+        std::cerr << "Invalid initial state: state " << initialState << " not in the set of states" << std::endl;
+        return false;
+    }
+    
+    return true;
 }
 
 bool NFA::validateFinalStates() const {
-    // Check if all final states are in the set of states
+    // check if all final states are in the set of states
     for (int state : finalStates) {
         if (states.find(state) == states.end()) {
             std::cerr << "Invalid final state: " << state << " not in the set of states" << std::endl;
@@ -234,35 +244,30 @@ bool NFA::accepts(const std::string& input) {
         return false;
     }
     
-    // Start with the initial state
     std::set<int> currentStates = {initialState};
     
-    // Process each character in the input
     for (char c : input) {
         if (sigma.find(c) == sigma.end()) {
-            // Input contains a symbol not in the alphabet
             return false;
         }
         
-        // Compute the next set of states
+        // compute the next set of states
         std::set<int> nextStates;
         for (int state : currentStates) {
             auto it = transitions.find({state, c});
             if (it != transitions.end()) {
-                // Add all possible destination states
                 nextStates.insert(it->second.begin(), it->second.end());
             }
         }
         
         currentStates = nextStates;
         
-        // If we have no active states, reject
         if (currentStates.empty()) {
             return false;
         }
     }
     
-    // Check if any of the current states is a final state
+    // check if any of the current states is a final state
     for (int state : currentStates) {
         if (finalStates.find(state) != finalStates.end()) {
             return true;

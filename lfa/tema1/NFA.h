@@ -13,8 +13,7 @@
 class NFA {
 protected:
     std::set<int> states;
-    std::set<char> sigma; // alphabet
-    // Transitions: state x symbol -> set of states
+    std::set<char> sigma;
     std::map<std::pair<int, char>, std::set<int>> transitions;
     int initialState;
     std::set<int> finalStates;
@@ -34,7 +33,6 @@ public:
     void printDetails() const;
 
 private:
-    // Helper methods for validation
     bool validateStates() const;
     bool validateSigma() const;
     bool validateTransitions() const;
@@ -42,4 +40,4 @@ private:
     bool validateFinalStates() const;
 };
 
-#endif // NFA_H 
+#endif
