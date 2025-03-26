@@ -169,7 +169,22 @@ bool NFA::readFromFile(const std::string& filename) {
 }
 
 bool NFA::validate() const {
-    return validateStates() && validateSigma() && validateTransitions() && validateInitialState() && validateFinalStates();
+    std::vector<std::string> errors;
+    
+    if (!validateStates()) errors.push_back("State validation failed");
+    if (!validateSigma()) errors.push_back("Alphabet validation failed");
+    if (!validateTransitions()) errors.push_back("Transition validation failed");
+    if (!validateInitialState()) errors.push_back("Initial state validation failed");
+    if (!validateFinalStates()) errors.push_back("Final states validation failed");
+
+    if (!errors.empty()) {
+        std::cerr << "Validation errors:\n";
+        for (const auto& err : errors) {
+            std::cerr << " - " << err << "\n";
+        }
+        return false;
+    }
+    return true;
 }
 
 bool NFA::validateStates() const {

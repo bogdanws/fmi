@@ -10,14 +10,20 @@ The project has been refactored into a modular structure with the following file
 - `NFA.h/cpp`: The NFA class declaration and implementation
 - `DFA.h/cpp`: The DFA class (inherits from NFA) declaration and implementation
 - `main.cpp`: The main program entry point
-- `Makefile`: For building the project
+- `CMakeLists.txt`: Cross-platform build configuration
 
 ## Building the Project
 
-To build the project, simply run:
+To build the project using CMake:
 
+Linux/MacOS:
 ```bash
-make
+./build.sh
+```
+
+Windows:
+```bash
+build.bat
 ```
 
 This will compile all the source files and create an executable named `automaton`.
@@ -28,8 +34,9 @@ To run the program:
 
 ```bash
 cd build
-./automaton
+./build/build/automaton
 ```
+
 ## Input File Format
 
 The automaton file should follow this format:
