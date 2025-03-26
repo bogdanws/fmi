@@ -17,6 +17,7 @@ set(SOURCES
     NFA.cpp
     DFA.cpp
     utils.cpp
+    TransitionMap.cpp
 )
 
 # Define the executable

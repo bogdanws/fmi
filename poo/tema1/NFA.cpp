@@ -169,7 +169,7 @@ bool NFA::readFromFile(const std::string& filename) {
                     // add the transition if symbol is valid
                     if (!symbolStr.empty()) {
                         char symbol = symbolStr[0];
-                        transitions[{fromState, symbol}].insert(toState);
+                        transitions.addTransition(fromState, symbol, toState);
                     } else {
                         std::cerr << "Empty transition symbol" << std::endl;
                         return false;
@@ -218,7 +218,7 @@ bool NFA::validateSigma() const {
 
 bool NFA::validateTransitions() const {
     // check if all transitions use valid states and symbols
-    for (const auto& [transition, toStates] : transitions) {
+    for (const auto& [transition, toStates] : transitions.getAllTransitions()) {
         int fromState = transition.first;
         char symbol = transition.second;
         
@@ -290,10 +290,8 @@ bool NFA::accepts(const std::string& input) {
         // compute the next set of states
         std::set<int> nextStates;
         for (int state : currentStates) {
-            auto it = transitions.find({state, c});
-            if (it != transitions.end()) {
-                nextStates.insert(it->second.begin(), it->second.end());
-            }
+            std::set<int> stateTransitions = transitions.getTransitions(state, c);
+            nextStates.insert(stateTransitions.begin(), stateTransitions.end());
         }
         
         currentStates = nextStates;
@@ -318,9 +316,10 @@ void NFA::printDetails() const {
 }
 
 std::ostream& operator<<(std::ostream& os, const NFA& nfa) {
+    os << "NFA Details:\n";
     os << "States: ";
     for (int state : nfa.states) {
-        os << state << " ";
+        os << "q" << state << " ";
     }
     os << "\n";
     
@@ -328,16 +327,11 @@ std::ostream& operator<<(std::ostream& os, const NFA& nfa) {
     for (char symbol : nfa.sigma) {
         os << symbol << " ";
     }
-    os << "\n";
-    
-    os << "Transitions:\n";
-    for (const auto& [transition, toStates] : nfa.transitions) {
-        int fromState = transition.first;
-        char symbol = transition.second;
-        
-        os << "  " << fromState << " -- " << symbol << " --> ";
+    os << "\nTransitions:\n";
+    for (const auto& [transition, toStates] : nfa.transitions.getAllTransitions()) {
+        os << "q" << transition.first << " --" << transition.second << "--> ";
         for (int toState : toStates) {
-            os << toState << " ";
+            os << "q" << toState << " ";
         }
         os << "\n";
     }

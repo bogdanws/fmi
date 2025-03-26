@@ -9,12 +9,13 @@
 #include <map>
 #include <set>
 #include <queue>
+#include "TransitionMap.h"
 
 class NFA {
 protected:
     std::set<int> states;
     std::set<char> sigma;
-    std::map<std::pair<int, char>, std::set<int>> transitions;
+    TransitionMap transitions;
     int initialState;
     std::set<int> finalStates;
 

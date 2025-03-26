@@ -17,7 +17,7 @@ bool DFA::validate() const {
     }
     
     // additional constraint: at most one transition for each state-symbol
-    for (const auto& [transition, toStates] : transitions) {
+    for (const auto& [transition, toStates] : transitions.getAllTransitions()) {
         if (toStates.size() > 1) {
             std::cerr << "Invalid DFA: state " << transition.first << " has multiple transitions on symbol '" << transition.second << "'" << std::endl;
             return false;
