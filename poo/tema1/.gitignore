@@ -1,0 +1,29 @@
+# Ignore build directories
+/bin/
+/obj/
+/build/
+/build-*/
+
+# CMake files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+compile_commands.json
+CTestTestfile.cmake
+Makefile.cmake
+install_manifest.txt
+_deps/
+
+# Ignore compiled object files
+*.o
+
+# Ignore compiled binary files
+*.out
+*.exe
+
+# Ignore dependency files
+*.d
+
+# Ignore other temporary files
+*.log
+*.tmp
