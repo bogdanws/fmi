@@ -34,7 +34,7 @@ To run the program:
 
 ```bash
 cd build
-./build/build/automaton
+./build/automaton
 ```
 
 ## Input File Format
