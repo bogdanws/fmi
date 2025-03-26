@@ -5,6 +5,11 @@
 
 class DFA : public NFA {
 public:
+    DFA() = default;
+    DFA(const DFA& other);
+    DFA& operator=(const DFA& other);
+    ~DFA() override = default;
+
     bool validate() const override;
 };
 

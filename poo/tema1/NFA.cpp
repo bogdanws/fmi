@@ -5,6 +5,27 @@ NFA::NFA() {
     isValid = false;
 }
 
+NFA::NFA(const NFA& other) {
+    states = other.states;
+    sigma = other.sigma;
+    transitions = other.transitions;
+    initialState = other.initialState;
+    finalStates = other.finalStates;
+    isValid = other.isValid;
+}
+
+NFA& NFA::operator=(const NFA& other) {
+    if (this != &other) {
+        states = other.states;
+        sigma = other.sigma;
+        transitions = other.transitions;
+        initialState = other.initialState;
+        finalStates = other.finalStates;
+        isValid = other.isValid;
+    }
+    return *this;
+}
+
 bool NFA::readFromFile(const std::string& filename) {
     std::ifstream file(filename);
     if (!file.is_open()) {

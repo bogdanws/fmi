@@ -1,5 +1,15 @@
 #include "DFA.h"
 
+DFA::DFA(const DFA& other) : NFA(other) {
+}
+
+DFA& DFA::operator=(const DFA& other) {
+    if (this != &other) {
+        NFA::operator=(other);
+    }
+    return *this;
+}
+
 bool DFA::validate() const {
     // validate as NFA
     if (!NFA::validate()) {

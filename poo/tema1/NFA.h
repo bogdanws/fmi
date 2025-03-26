@@ -22,6 +22,8 @@ protected:
 
 public:
     NFA();
+    NFA(const NFA& other);
+    NFA& operator=(const NFA& other);
     virtual ~NFA() = default;
     
     bool readFromFile(const std::string& filename);
