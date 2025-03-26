@@ -314,37 +314,43 @@ bool NFA::accepts(const std::string& input) {
 }
 
 void NFA::printDetails() const {
-    std::cout << "States: ";
-    for (int state : states) {
-        std::cout << state << " ";
+    std::cout << *this;
+}
+
+std::ostream& operator<<(std::ostream& os, const NFA& nfa) {
+    os << "States: ";
+    for (int state : nfa.states) {
+        os << state << " ";
     }
-    std::cout << std::endl;
+    os << "\n";
     
-    std::cout << "Alphabet: ";
-    for (char symbol : sigma) {
-        std::cout << symbol << " ";
+    os << "Alphabet: ";
+    for (char symbol : nfa.sigma) {
+        os << symbol << " ";
     }
-    std::cout << std::endl;
+    os << "\n";
     
-    std::cout << "Transitions:" << std::endl;
-    for (const auto& [transition, toStates] : transitions) {
+    os << "Transitions:\n";
+    for (const auto& [transition, toStates] : nfa.transitions) {
         int fromState = transition.first;
         char symbol = transition.second;
         
-        std::cout << "  " << fromState << " -- " << symbol << " --> ";
+        os << "  " << fromState << " -- " << symbol << " --> ";
         for (int toState : toStates) {
-            std::cout << toState << " ";
+            os << toState << " ";
         }
-        std::cout << std::endl;
+        os << "\n";
     }
     
-    std::cout << "Initial state: " << initialState << std::endl;
+    os << "Initial state: " << nfa.initialState << "\n";
     
-    std::cout << "Final states: ";
-    for (int state : finalStates) {
-        std::cout << state << " ";
+    os << "Final states: ";
+    for (int state : nfa.finalStates) {
+        os << state << " ";
     }
-    std::cout << std::endl;
+    os << "\n";
     
-    std::cout << "Automaton is " << (isValid ? "valid" : "invalid") << std::endl;
+    os << "Automaton is " << (nfa.isValid ? "valid" : "invalid") << "\n";
+    
+    return os;
 } 

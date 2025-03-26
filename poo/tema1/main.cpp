@@ -27,7 +27,7 @@ int main() {
     
     if (automaton->readFromFile(filename)) {
         std::cout << "\n\t Automaton Details\n" << std::endl;
-        automaton->printDetails();
+        std::cout << *automaton;
         
         std::string input;
         std::cout << "\nEnter a string to check if it's accepted by the automaton: ";

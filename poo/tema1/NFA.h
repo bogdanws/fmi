@@ -34,6 +34,8 @@ public:
     
     void printDetails() const;
 
+    friend std::ostream& operator<<(std::ostream& os, const NFA& nfa);
+
 private:
     bool validateStates() const;
     bool validateSigma() const;
