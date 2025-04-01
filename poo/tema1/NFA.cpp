@@ -3,6 +3,7 @@
 
 NFA::NFA() {
     isValid = false;
+    acceptedStringsCount = 0;
 }
 
 NFA::NFA(const NFA& other) {
@@ -12,6 +13,7 @@ NFA::NFA(const NFA& other) {
     initialState = other.initialState;
     finalStates = other.finalStates;
     isValid = other.isValid;
+    acceptedStringsCount = 0;
 }
 
 NFA& NFA::operator=(const NFA& other) {
@@ -22,6 +24,7 @@ NFA& NFA::operator=(const NFA& other) {
         initialState = other.initialState;
         finalStates = other.finalStates;
         isValid = other.isValid;
+        acceptedStringsCount = 0;
     }
     return *this;
 }
@@ -306,6 +309,7 @@ bool NFA::accepts(const std::string& input) {
     // check if any of the current states is a final state
     for (int state : currentStates) {
         if (finalStates.find(state) != finalStates.end()) {
+            acceptedStringsCount++;
             return true;
         }
     }
@@ -353,4 +357,8 @@ std::ostream& operator<<(std::ostream& os, const NFA& nfa) {
     os << "Automaton is " << (nfa.isValid ? "valid" : "invalid") << "\n";
     
     return os;
-} 
+}
+
+NFA::~NFA() {
+    std::cout << "NFA instance destroyed. Accepted " << acceptedStringsCount << " strings in its lifetime." << std::endl;
+}

@@ -19,12 +19,13 @@ protected:
     std::set<int> finalStates;
 
     bool isValid;
+    int acceptedStringsCount;
 
 public:
     NFA();
     NFA(const NFA& other);
     NFA& operator=(const NFA& other);
-    virtual ~NFA() = default;
+    virtual ~NFA();
     
     bool readFromFile(const std::string& filename);
     

@@ -2,6 +2,7 @@
 // pentru a rula programul, se compileaza cu make, iar apoi se ruleaza ./automaton
 #include <iostream>
 #include <string>
+#include <limits> // Required for std::numeric_limits
 #include <algorithm>
 #include "NFA.h"
 #include "DFA.h"
@@ -30,13 +31,22 @@ int main() {
         std::cout << *automaton;
         
         std::string input;
-        std::cout << "\nEnter a string to check if it's accepted by the automaton: ";
-        std::cin >> input;
+        // consume the newline character left by previous std::cin
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         
-        if (automaton->accepts(input)) {
-            std::cout << "String accepted!" << std::endl;
-        } else {
-            std::cout << "String rejected!" << std::endl;
+        while (true) {
+            std::cout << "\nEnter a string to check (or press Enter to exit): ";
+            std::getline(std::cin, input);
+
+            if (input.empty()) {
+                break;
+            }
+
+            if (automaton->accepts(input)) {
+                std::cout << "String \"" << input << "\" accepted!" << std::endl;
+            } else {
+                std::cout << "String \"" << input << "\" rejected!" << std::endl;
+            }
         }
     } else {
         std::cout << "Failed to read or validate the automaton." << std::endl;
