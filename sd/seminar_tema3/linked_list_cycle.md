@@ -1,0 +1,1 @@
+Folosim 2 pointeri care se deplasează cu viteze diferite. Începând de la capătul listei, un pointer se deplasează cu un nod, iar celălalt cu două noduri. Dacă există un ciclu, pointerii se vor întâlni în acel ciclu. Dacă pointerul care se deplasează cu două noduri ajunge la capătul listei, atunci nu există ciclu.
